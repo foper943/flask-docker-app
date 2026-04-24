@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from .services import get_message, get_all_messages, add_message
+import os
 
 main = Blueprint('main', __name__)
 
@@ -17,3 +18,10 @@ def create_message():
     text = data.get("text", "default message")
     add_message(text)
     return jsonify({"status": "ok", "text": text})
+
+@main.route("/version")
+def version():
+    return {
+        "version": os.getenv("VERSION", "dev"),
+        "env": os.getenv("ENV", "local")
+    }
