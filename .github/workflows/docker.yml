@@ -22,3 +22,9 @@ jobs:
 
       - name: Push
         run: docker push ${{ secrets.DOCKER_USERNAME }}/my_app:${{ github.sha }}
+
+      - name: Tag latest
+        run: docker tag ${{ secrets.DOCKER_USERNAME }}/my_app:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/my_app:latest
+
+      - name: Push latest
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/my_app:latest
