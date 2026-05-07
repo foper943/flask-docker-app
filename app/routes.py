@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .services import get_message, get_all_messages, add_message
+from .services import get_message, get_all_messages, add_message, add_counter
 
 main = Blueprint('main', __name__)
 
@@ -18,3 +18,6 @@ def create_message():
     add_message(text)
     return jsonify({"status": "ok", "text": text})
 
+@main.route("/counter")
+def counter():
+    return {"count": add_counter()}

@@ -1,4 +1,8 @@
 from .db import connect_db
+import redis
+import os
+
+r = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379)
 
 def get_message():
     conn = connect_db()
@@ -42,3 +46,6 @@ def add_message(text):
     )
     conn.commit()
     conn.close()
+
+def add_counter():
+    return r.incr("counter")

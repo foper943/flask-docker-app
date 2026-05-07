@@ -9,8 +9,10 @@ services:
       - DB_NAME=mydb
       - DB_USER=postgres
       - DB_PASSWORD=postgres
+      - REDIS_HOST=redis
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:15
@@ -21,6 +23,9 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
 
   nginx:
     image: nginx:latest
