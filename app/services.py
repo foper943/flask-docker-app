@@ -1,51 +1,24 @@
-from .db import connect_db
-import redis
-import os
+from typing import List
 
-r = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379)
+from .repositories.counter_repository import CounterRepository
+from .repositories.message_repository import MessageRepository
 
-def get_message():
-    conn = connect_db()
-    cursor = conn.cursor()
+_message_repo = MessageRepository()
+_counter_repo = CounterRepository()
 
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS messages (
-            id SERIAL PRIMARY KEY,
-            text TEXT
-        )
-    """)
 
-    cursor.execute("INSERT INTO messages (text) VALUES ('Hello from PostgreSQL')")
-    conn.commit()
+def get_message() -> str:
+    _message_repo.insert("Hello from PostgreSQL")
+    return _message_repo.get_last()
 
-    cursor.execute("SELECT text FROM messages ORDER BY id DESC LIMIT 1")
-    result = cursor.fetchone()
 
-    conn.close()
+def get_all_messages() -> List[str]:
+    return _message_repo.get_all()
 
-    return result[0]
 
-def get_all_messages():
-    conn = connect_db()
-    cursor = conn.cursor()
+def add_message(text: str) -> None:
+    _message_repo.insert(text)
 
-    cursor.execute("SELECT text FROM messages")
-    result = cursor.fetchall()
 
-    conn.close()
-
-    return [row[0] for row in result]
-
-def add_message(text):
-    conn = connect_db()
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "INSERT INTO messages (text) VALUES (%s)",
-        (text,)
-    )
-    conn.commit()
-    conn.close()
-
-def add_counter():
-    return r.incr("counter")
+def add_counter() -> int:
+    return _counter_repo.increment()
