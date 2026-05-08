@@ -3,6 +3,12 @@ from .services import get_message, get_all_messages, add_message, add_counter
 
 main = Blueprint('main', __name__)
 
+import socket
+
+@main.route("/whoami")
+def whoami():
+    return jsonify({"container": socket.gethostname()})
+
 @main.route("/")
 def home():
     return jsonify({"message": get_message()})
