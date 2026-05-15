@@ -1,6 +1,7 @@
 services:
   app:
     build: .
+    image: ${DOCKER_USERNAME}/my_app:${IMAGE_TAG}
     environment:
       - PORT=5000
       - DEBUG=False
@@ -27,6 +28,7 @@ services:
 
   frontend:
     build: ./frontend
+    image: ${DOCKER_USERNAME}/peer_learn_frontend:${IMAGE_TAG}
     expose:
       - "3000"
     depends_on:
