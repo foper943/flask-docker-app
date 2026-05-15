@@ -60,6 +60,71 @@ docker-compose logs -f app
 3. Возвращается в заголовке ответа `X-Request-ID`.
 4. Автоматически добавляется во все логи внутри обработки запроса.
 
+## Запуск фронтенда
+
+### Через Docker Compose (рекомендуется)
+
+```bash
+docker-compose up --build
+# Открыть: http://localhost:8080
+```
+
+Nginx на порту 8080 маршрутизирует:
+- `/api/*` → Flask :5000
+- `/*` → React SPA :3000
+
+### Локальная разработка (без Docker)
+
+```bash
+cd frontend
+npm install
+npm run dev
+# Открыть: http://localhost:5173
+# Vite автоматически проксирует /api → http://localhost:5000
+```
+
+### Сборка без Docker
+
+```bash
+cd frontend
+npm install
+npm run build        # dist/
+npm run preview      # preview на порту 3000
+```
+
+## Тестирование graceful shutdown
+
+```bash
+# Запуск
+docker-compose up -d
+
+# Отправить SIGTERM конкретному контейнеру
+docker kill --signal=SIGTERM <container_name>
+
+# Наблюдать логи завершения
+docker-compose logs -f app
+```
+
+В логах должна появиться следующая последовательность:
+
+```json
+{"message": "received SIGTERM", ...}
+{"message": "waiting for requests to complete", ...}
+{"message": "closing DB connections", ...}
+{"message": "shutdown complete", ...}
+```
+
+Код выхода контейнера должен быть `0`:
+
+```bash
+docker inspect <container_name> --format='{{.State.ExitCode}}'
+```
+
+Чтобы убедиться, что in-flight запросы завершились успешно, можно запустить
+длинный запрос и одновременно отправить SIGTERM — ответ должен прийти с кодом 200,
+а новые запросы во время shutdown получат `503 Service Unavailable` с заголовком
+`Retry-After: 10`.
+
 ## Структура слоёв
 
 ```
