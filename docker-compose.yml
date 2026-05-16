@@ -1,7 +1,32 @@
 services:
+
+  # --------------------------------------------------------------------
+  # Одноразовый сервис: применяет миграции и завершается.
+  # app дожидается его успешного завершения (service_completed_successfully).
+  # --------------------------------------------------------------------
+  migrate:
+    build: .
+    image: ${DOCKER_USERNAME}/my_app:${IMAGE_TAG:-latest}
+    command: ["python", "cli.py", "migrate"]
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=mydb
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_HOST=redis
+      - SERVICE_NAME=migrate
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-change-in-production}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: "no"
+
   app:
     build: .
-    image: ${DOCKER_USERNAME}/my_app:${IMAGE_TAG}
+    image: ${DOCKER_USERNAME}/my_app:${IMAGE_TAG:-latest}
     environment:
       - PORT=5000
       - DEBUG=False
@@ -13,14 +38,17 @@ services:
       - REDIS_HOST=redis
       - SERVICE_NAME=app
       - SECRET_KEY=${SECRET_KEY:-dev-secret-change-in-production}
+      - APP_VERSION=${IMAGE_TAG:-dev}
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     stop_grace_period: 35s
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -28,14 +56,14 @@ services:
 
   frontend:
     build: ./frontend
-    image: ${DOCKER_USERNAME}/peer_learn_frontend:${IMAGE_TAG}
+    image: ${DOCKER_USERNAME}/peer_learn_frontend:${IMAGE_TAG:-latest}
     expose:
       - "3000"
     depends_on:
       app:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
       interval: 10s
       timeout: 5s
       retries: 3

@@ -15,7 +15,7 @@ _ALG = "HS256"
 def encode_token(user_id: int) -> str:
     now = datetime.now(timezone.utc)
     return jwt.encode(
-        {"sub": user_id, "iat": now, "exp": now + timedelta(days=30)},
+        {"sub": str(user_id), "iat": now, "exp": now + timedelta(days=30)},
         _SECRET,
         algorithm=_ALG,
     )

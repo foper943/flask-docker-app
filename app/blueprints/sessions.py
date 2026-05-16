@@ -78,6 +78,8 @@ def create_session():
 
     if not all([mentor_id, skill_id, scheduled_at, topic]):
         return jsonify({"error": "mentor_id, skill_id, scheduled_at и topic обязательны"}), 400
+    if mentor_id == g.current_user_id:
+        return jsonify({"error": "нельзя записаться на сессию к самому себе"}), 422
 
     conn = connect_db()
     try:

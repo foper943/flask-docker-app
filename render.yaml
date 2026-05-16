@@ -1,0 +1,74 @@
+# Конфигурация деплоя на Render.com
+# Документация: https://render.com/docs/blueprint-spec
+
+services:
+  # -----------------------------------------------------------------
+  # Flask-приложение (Web Service)
+  # -----------------------------------------------------------------
+  - type: web
+    name: peer-learn-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: DEBUG
+        value: "False"
+      - key: SERVICE_NAME
+        value: app
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: peer-learn-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: peer-learn-redis
+          type: redis
+          property: connectionString
+      - key: APP_VERSION
+        value: render
+
+  # -----------------------------------------------------------------
+  # Одноразовый сервис: применение миграций перед деплоем
+  # Render запускает его как "pre-deploy job"
+  # -----------------------------------------------------------------
+  - type: worker
+    name: peer-learn-migrate
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    startCommand: python cli.py migrate
+    envVars:
+      - key: SERVICE_NAME
+        value: migrate
+      - key: DATABASE_URL
+        fromDatabase:
+          name: peer-learn-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: peer-learn-redis
+          type: redis
+          property: connectionString
+
+databases:
+  # -----------------------------------------------------------------
+  # PostgreSQL (управляемая БД Render)
+  # -----------------------------------------------------------------
+  - name: peer-learn-db
+    plan: free
+    databaseName: peer_learn
+    user: peer_learn_user
+
+  # -----------------------------------------------------------------
+  # Redis (управляемый Redis Render)
+  # -----------------------------------------------------------------
+  - name: peer-learn-redis
+    plan: free
+    type: redis
