@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { io, Socket } from 'socket.io-client'
@@ -15,6 +15,7 @@ const WS_URL = import.meta.env.VITE_WS_URL ?? ''
 export default function ChatPage() {
   const { userId } = useParams<{ userId: string }>()
   const otherId = Number(userId)
+  const navigate = useNavigate()
   const currentUser = useAuthStore((s) => s.user)
   const token = useAuthStore((s) => s.token)
   const qc = useQueryClient()
@@ -100,6 +101,13 @@ export default function ChatPage() {
     <div className="mx-auto flex h-[calc(100vh-140px)] max-w-2xl flex-col">
       {/* Шапка */}
       <div className="flex items-center gap-3 rounded-t-xl border border-b-0 border-gray-200 bg-white p-4">
+        <button
+          onClick={() => navigate('/messages')}
+          className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          title="Назад к сообщениям"
+        >
+          ←
+        </button>
         {other && <Avatar name={other.name} src={other.avatar_url} />}
         <div className="flex-1">
           <p className="font-semibold text-gray-900">{other?.name ?? '...'}</p>
