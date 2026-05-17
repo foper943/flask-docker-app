@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { getSessions, updateSessionStatus } from '../api/sessions'
@@ -23,6 +24,7 @@ type Tab = 'pending' | 'upcoming' | 'past'
 
 export default function SessionsPage() {
   const currentUser = useAuthStore((s) => s.user)
+  const navigate = useNavigate()
   const qc = useQueryClient()
   const [tab, setTab] = useState<Tab>('pending')
   const [reviewTarget, setReviewTarget] = useState<Session | null>(null)
@@ -122,6 +124,13 @@ export default function SessionsPage() {
 
                 {/* Действия */}
                 <div className="mt-3 flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => navigate(`/messages/${isMentor ? s.learner_id : s.mentor_id}`)}
+                  >
+                    Написать {isMentor ? s.learner_name.split(' ')[0] : s.mentor_name.split(' ')[0]}
+                  </Button>
                   {s.status === 'pending' && isMentor && (
                     <>
                       <Button

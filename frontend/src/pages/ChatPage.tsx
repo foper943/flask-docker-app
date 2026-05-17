@@ -43,7 +43,7 @@ export default function ChatPage() {
   useEffect(() => {
     const socket = io(WS_URL, {
       auth: { token },
-      transports: ['websocket'],
+      transports: ['polling', 'websocket'],
     })
     socketRef.current = socket
 
