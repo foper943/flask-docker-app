@@ -6,7 +6,8 @@ export default defineConfig(({ mode }) => {
 
   return {
     // В production базовый путь берётся из VITE_BASE_PATH (нужен для GitHub Pages)
-    base: env.VITE_BASE_PATH ?? '/',
+    // Vite требует trailing slash, React Router — нет; добавляем здесь
+    base: env.VITE_BASE_PATH ? env.VITE_BASE_PATH + '/' : '/',
     plugins: [react()],
     server: {
       host: '0.0.0.0',
