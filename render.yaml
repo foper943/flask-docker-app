@@ -1,10 +1,4 @@
-# Конфигурация деплоя на Render.com
-# Документация: https://render.com/docs/blueprint-spec
-
 services:
-  # -----------------------------------------------------------------
-  # Flask-приложение (Web Service)
-  # -----------------------------------------------------------------
   - type: web
     name: peer-learn-api
     runtime: docker
@@ -33,10 +27,6 @@ services:
       - key: APP_VERSION
         value: render
 
-  # -----------------------------------------------------------------
-  # Одноразовый сервис: применение миграций перед деплоем
-  # Render запускает его как "pre-deploy job"
-  # -----------------------------------------------------------------
   - type: worker
     name: peer-learn-migrate
     runtime: docker
@@ -57,18 +47,14 @@ services:
           type: redis
           property: connectionString
 
+  # Redis — это сервис, а не база данных в терминах Render
+  - type: redis
+    name: peer-learn-redis
+    plan: free
+    ipAllowList: []
+
 databases:
-  # -----------------------------------------------------------------
-  # PostgreSQL (управляемая БД Render)
-  # -----------------------------------------------------------------
   - name: peer-learn-db
     plan: free
     databaseName: peer_learn
     user: peer_learn_user
-
-  # -----------------------------------------------------------------
-  # Redis (управляемый Redis Render)
-  # -----------------------------------------------------------------
-  - name: peer-learn-redis
-    plan: free
-    type: redis
