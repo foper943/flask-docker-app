@@ -33,7 +33,7 @@ services:
     dockerfilePath: ./Dockerfile
     dockerContext: .
     plan: free
-    startCommand: python cli.py migrate
+    dockerCommand: python cli.py migrate
     envVars:
       - key: SERVICE_NAME
         value: migrate
