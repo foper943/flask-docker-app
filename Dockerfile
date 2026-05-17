@@ -14,9 +14,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Код приложения — обновляется чаще, идёт последним
 COPY . .
 
+RUN chmod +x docker-entrypoint.sh
+
 EXPOSE 5000
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=3 \
-    CMD curl -f http://localhost:5000/ || exit 1
+    CMD curl -f http://localhost:5000/health || exit 1
 
-CMD ["gunicorn", "--config", "gunicorn.conf.py", "run:app"]
+CMD ["./docker-entrypoint.sh"]

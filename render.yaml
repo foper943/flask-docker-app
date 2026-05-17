@@ -27,27 +27,6 @@ services:
       - key: APP_VERSION
         value: render
 
-  - type: worker
-    name: peer-learn-migrate
-    runtime: docker
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    plan: free
-    dockerCommand: python cli.py migrate
-    envVars:
-      - key: SERVICE_NAME
-        value: migrate
-      - key: DATABASE_URL
-        fromDatabase:
-          name: peer-learn-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          name: peer-learn-redis
-          type: redis
-          property: connectionString
-
-  # Redis — это сервис, а не база данных в терминах Render
   - type: redis
     name: peer-learn-redis
     plan: free
