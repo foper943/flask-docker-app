@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { getMentor } from '../api/mentors'
@@ -17,6 +17,7 @@ export default function MentorDetailPage() {
   const { id } = useParams<{ id: string }>()
   const mentorId = Number(id)
   const currentUser = useAuthStore((s) => s.user)
+  const navigate = useNavigate()
   const qc = useQueryClient()
 
   const [bookingOpen, setBookingOpen] = useState(false)
@@ -76,7 +77,12 @@ export default function MentorDetailPage() {
             </div>
           </div>
           {!isOwnProfile && (
-            <Button onClick={() => setBookingOpen(true)}>Записаться</Button>
+            <div className="flex flex-col gap-2">
+              <Button onClick={() => setBookingOpen(true)}>Записаться</Button>
+              <Button variant="secondary" onClick={() => navigate(`/messages/${mentorId}`)}>
+                Написать
+              </Button>
+            </div>
           )}
         </div>
       </Card>
